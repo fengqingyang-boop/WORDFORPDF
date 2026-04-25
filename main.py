@@ -12,7 +12,7 @@ class ConverterApp:
     def __init__(self, root: tk.Tk):
         self.root = root
         self.root.title("Word-PDF 转换器")
-        self.root.geometry("600x450")
+        self.root.geometry("680x600")
         self.root.resizable(False, False)
         
         self.input_file_path: Optional[str] = None
@@ -98,23 +98,37 @@ class ConverterApp:
         )
         status_label.pack(pady=(5, 0))
         
-        button_frame = ttk.Frame(main_frame)
-        button_frame.pack(fill=tk.X, pady=(10, 0))
+        action_frame = ttk.LabelFrame(main_frame, text="操作区域", padding="15")
+        action_frame.pack(fill=tk.X, pady=(10, 0))
+        
+        button_frame = ttk.Frame(action_frame)
+        button_frame.pack(fill=tk.X)
         
         self.convert_button = ttk.Button(
             button_frame,
             text="开始转换",
             command=self._start_conversion,
-            state="disabled"
+            state="disabled",
+            width=20
         )
-        self.convert_button.pack(side=tk.LEFT, padx=(0, 10))
+        self.convert_button.pack(side=tk.LEFT, padx=(0, 15))
         
         open_folder_button = ttk.Button(
             button_frame,
             text="打开输出文件夹",
-            command=self._open_output_folder
+            command=self._open_output_folder,
+            width=15
         )
         open_folder_button.pack(side=tk.LEFT)
+        
+        self.action_hint_var = tk.StringVar(value="💡 提示：请先点击上方\"选择文件\"按钮选择要转换的文件")
+        action_hint_label = ttk.Label(
+            action_frame,
+            textvariable=self.action_hint_var,
+            font=("Microsoft YaHei UI", 10),
+            foreground="#666666"
+        )
+        action_hint_label.pack(anchor=tk.W, pady=(10, 0))
         
         hint_frame = ttk.LabelFrame(main_frame, text="使用说明", padding="10")
         hint_frame.pack(fill=tk.X, pady=(10, 0))
@@ -169,6 +183,7 @@ class ConverterApp:
             self.convert_button.config(state="normal")
             self.progress_var.set(0)
             self.status_var.set("就绪 - 点击开始转换")
+            self.action_hint_var.set("✅ 就绪：点击\"开始转换\"按钮进行文件转换")
     
     def _progress_callback(self, current: int, total: int):
         progress_percent = (current / total) * 100
