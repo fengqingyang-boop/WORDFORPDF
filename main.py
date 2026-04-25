@@ -218,14 +218,62 @@ class ConverterApp:
         )
     
     def _on_conversion_error(self, error_msg: str):
-        self.status_var.set(f"转换失败: {error_msg}")
+        self.status_var.set("转换失败，请查看详细错误信息")
         self.is_converting = False
         self.convert_button.config(state="normal")
+        self.action_hint_var.set("❌ 转换失败，请查看错误提示")
         
-        messagebox.showerror(
-            "转换失败",
-            f"转换过程中发生错误:\n{error_msg}"
+        import tkinter.scrolledtext as scrolledtext
+        
+        error_window = tk.Toplevel(self.root)
+        error_window.title("转换错误详情")
+        error_window.geometry("600x400")
+        error_window.resizable(True, True)
+        error_window.transient(self.root)
+        error_window.grab_set()
+        
+        title_frame = ttk.Frame(error_window, padding="10")
+        title_frame.pack(fill=tk.X)
+        
+        ttk.Label(
+            title_frame,
+            text="转换失败，以下是详细错误信息：",
+            font=("Microsoft YaHei UI", 11, "bold"),
+            foreground="#d32f2f"
+        ).pack(anchor=tk.W)
+        
+        text_frame = ttk.Frame(error_window, padding="10")
+        text_frame.pack(fill=tk.BOTH, expand=True)
+        
+        text_widget = scrolledtext.ScrolledText(
+            text_frame,
+            wrap=tk.WORD,
+            font=("Microsoft YaHei UI", 10),
+            bg="#fff8f8"
         )
+        text_widget.pack(fill=tk.BOTH, expand=True)
+        
+        text_widget.insert(tk.END, error_msg)
+        text_widget.config(state=tk.DISABLED)
+        
+        button_frame = ttk.Frame(error_window, padding="10")
+        button_frame.pack(fill=tk.X)
+        
+        def copy_error():
+            self.root.clipboard_clear()
+            self.root.clipboard_append(error_msg)
+        
+        ttk.Button(
+            button_frame,
+            text="复制错误信息",
+            command=copy_error
+        ).pack(side=tk.LEFT, padx=(0, 10))
+        
+        ttk.Button(
+            button_frame,
+            text="关闭",
+            command=error_window.destroy
+        ).pack(side=tk.LEFT)
     
     def _start_conversion(self):
         if self.is_converting:
